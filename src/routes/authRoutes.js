@@ -19,6 +19,8 @@ passport.use(new GoogleStrategy({
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     const email = (profile.emails && profile.emails[0] && profile.emails[0].value) || null;
+    const firstName = (profile.name && profile.name.givenName) || null;
+    const lastName = (profile.name && profile.name.familyName) || null;
     if (!email) return done(null, false, { message: 'Email no disponible desde Google' });
     const existing = await Models['usuarios'].findOne({ Username: email });
     if (existing) {
@@ -30,12 +32,14 @@ passport.use(new GoogleStrategy({
         username: existing.Username,
         role: existing.Role,
         medicoId: existing.MedicoRef || null,
-        pacienteId: existing.PacienteRef || null
+        pacienteId: existing.PacienteRef || null,
+        firstName,
+        lastName
       };
       return done(null, userPayload);
     }
     // Usuario no existe: marcar para registro (paciente)
-    return done(null, { username: email, role: 'Paciente' });
+    return done(null, { username: email, role: 'Paciente', firstName, lastName });
   } catch (err) {
     return done(err);
   }
@@ -54,7 +58,9 @@ router.get('/google/callback', passport.authenticate('google', { session: false,
   }
   // Usuario nuevo: completar registro de paciente
   const email = user.username;
-  return res.redirect(`/registro/paciente?googleEmail=${encodeURIComponent(email)}`);
+  const firstName = user.firstName || '';
+  const lastName = user.lastName || '';
+  return res.redirect(`/registro/paciente?googleEmail=${encodeURIComponent(email)}&googleFirstName=${encodeURIComponent(firstName)}&googleLastName=${encodeURIComponent(lastName)}`);
 })
 
 // Registro público de paciente (sin autenticación)

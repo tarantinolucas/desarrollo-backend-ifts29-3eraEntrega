@@ -100,9 +100,10 @@ router.get('/login', (req, res) => {
 // Registro público de Paciente
 router.get('/registro/paciente', (req, res) => {
   const googleEmail = req.query.googleEmail || '';
-  res.render('registroPaciente', { title: 'Registro de Paciente', user: null, googleEmail });
-});
-
+  const googleFirstName = req.query.googleFirstName || '';
+  const googleLastName = req.query.googleLastName || '';
+  res.render('registroPaciente', { title: 'Registro de Paciente', user: null, googleEmail, googleFirstName, googleLastName });
+})
 // 🧠 Estado de la API
 router.get('/api/status', (req, res) => {
   res.json({

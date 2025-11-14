@@ -39,7 +39,7 @@ html(lang='es')
       if googleEmail
         .result.success
           i.fas.fa-info-circle
-          | Hemos recibido tu correo de Google: #{googleEmail}. Completa tus datos para finalizar el registro.
+          | Hemos recibido tu correo de Google: #{googleEmail}. #{googleFirstName || googleLastName ? `También obtuvimos tu nombre: ${googleFirstName} ${googleLastName}.` : ''} Completa tus datos para finalizar el registro.
       form#registro-form
         .grid
           .form-group
@@ -53,19 +53,19 @@ html(lang='es')
             input(type='text', id='DNI', name='DNI', required)
           .form-group
             label(for='Nombre') Nombre
-            input(type='text', id='Nombre', name='Nombre', required)
+            input(type='text', id='Nombre', name='Nombre', required, value=googleFirstName)
           .form-group
             label(for='Apellido') Apellido
-            input(type='text', id='Apellido', name='Apellido', required)
+            input(type='text', id='Apellido', name='Apellido', required, value=googleLastName)
           .form-group
             label(for='Edad') Edad
             input(type='number', id='Edad', name='Edad', min='0', required)
           .form-group
-             label(for='Sexo') Sexo
-             select(id='Sexo', name='Sexo', required)
-               option(value='') Selecciona...
-               option(value='F') Femenino
-               option(value='M') Masculino
+            label(for='Sexo') Sexo
+            select(id='Sexo', name='Sexo', required)
+              option(value='') Selecciona...
+              option(value='F') Femenino
+              option(value='M') Masculino
           .form-group
             label(for='ObraSocial') Obra Social
             input(type='text', id='ObraSocial', name='ObraSocial', required)
