@@ -7,118 +7,474 @@ html(lang='es')
     link(rel='stylesheet', href='https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap')
     link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css')
     style.
+      * { box-sizing: border-box; }
       body {
         font-family: 'Inter', sans-serif;
         margin: 0;
-        padding: 24px;
+        padding: 0;
         background: linear-gradient(135deg, #f6fbff, #e9f6ff);
         color: #0f4c81;
         display: flex;
-        min-height: 100vh;
+        height: 100vh;
+        overflow: hidden;
+      }
+      
+      .login-wrapper {
+        display: flex;
+        width: 100%;
+        height: 100%;
         align-items: center;
         justify-content: center;
+        padding: 20px;
       }
-      .login-card {
+      
+      .login-container {
         width: 100%;
-        max-width: 420px;
-        background: rgba(255,255,255,0.85);
-        padding: 28px;
+        max-width: 900px;
+        height: auto;
+        max-height: calc(100vh - 40px);
+        background: rgba(255,255,255,0.75);
         border-radius: 16px;
-        box-shadow: 0 14px 40px rgba(2,6,23,0.12);
+        box-shadow: 0 14px 40px rgba(2,6,23,0.08);
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        overflow: hidden;
       }
-      .login-header {
+      
+      .login-sidebar {
+        background: linear-gradient(180deg, rgba(6,40,60,0.95), rgba(5,34,54,0.95));
+        padding: 40px 30px;
+        display: flex;
+        flex-direction: column;
+        color: white;
+      }
+      
+      .logo {
+        width: 60px;
+        height: 60px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #0b74b6, #0b4fa0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 26px;
+        margin: 0 auto 20px;
+      }
+      
+      .login-sidebar h1 {
+        margin: 0 0 8px 0;
+        font-size: 1.5rem;
+        text-align: center;
+      }
+      
+      .login-sidebar .subtitle {
+        text-align: center;
+        opacity: 0.9;
+        font-size: 14px;
+        margin-bottom: 40px;
+      }
+      
+      .role-tabs {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      
+      .role-tab {
+        padding: 16px 20px;
+        border: 2px solid rgba(255,255,255,0.1);
+        border-radius: 10px;
+        cursor: pointer;
+        background: transparent;
+        color: rgba(255,255,255,0.7);
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
         display: flex;
         align-items: center;
         gap: 12px;
-        margin-bottom: 18px;
+        text-align: left;
       }
-      .logo {
-        width: 44px;
-        height: 44px;
-        border-radius: 10px;
-        background: linear-gradient(135deg,#0b74b6,#0b4fa0);
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        font-weight:700;
-        color: #fff;
+      
+      .role-tab i {
+        font-size: 20px;
+        width: 24px;
       }
-      .page-sub { margin: 0; color: #5b7f98; }
-      .form-group { margin-bottom: 14px; }
-      .form-group label { display:block; margin-bottom:6px; font-weight:600; }
-      .form-group input { width: 100%; padding: 12px; border: 1px solid #cbd5e0; border-radius:8px; font-size: 16px; }
-      .form-group input:focus { outline:none; border-color:#0b74b6; box-shadow:0 0 0 3px rgba(11, 116, 182, 0.1); }
-      .submit-button { width:100%; background:#0b74b6; color:white; padding:12px; border:none; border-radius:8px; font-size:16px; cursor:pointer; }
-      .submit-button:hover { background:#0b4fa0; }
-      .result { margin-top: 12px; display:none; padding: 12px; border-radius:8px; }
-      .result.success { background:#f0fff4; border-left:4px solid #48bb78; color:#2f855a; display:block; }
-      .result.error { background:#fed7d7; border-left:4px solid #f56565; color:#c53030; display:block; }
+      
+      .role-tab:hover {
+        background: rgba(255,255,255,0.05);
+        border-color: rgba(255,255,255,0.2);
+        color: rgba(255,255,255,0.9);
+      }
+      
+      .role-tab.active {
+        background: rgba(11, 116, 182, 0.2);
+        border-color: #0b74b6;
+        color: white;
+      }
+      
+      .form-content {
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      
+      .tab-panel {
+        display: none;
+      }
+      
+      .tab-panel.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+      }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateX(10px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      
+      .panel-header {
+        margin-bottom: 30px;
+      }
+      
+      .panel-header h2 {
+        margin: 0 0 8px 0;
+        font-size: 1.8rem;
+        color: #0f4c81;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      
+      .panel-header h2 i {
+        font-size: 1.6rem;
+        color: #0b74b6;
+      }
+      
+      .panel-header p {
+        margin: 0;
+        color: #5b7f98;
+        font-size: 14px;
+      }
+      
+      .form-group {
+        margin-bottom: 20px;
+      }
+      
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #0f4c81;
+      }
+      
+      .form-group input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid rgba(12,50,80,0.12);
+        border-radius: 8px;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        font-family: 'Inter', sans-serif;
+        background: white;
+      }
+      
+      .form-group input:focus {
+        outline: none;
+        border-color: #0b74b6;
+        box-shadow: 0 0 0 3px rgba(11, 116, 182, 0.1);
+      }
+      
+      .submit-button {
+        width: 100%;
+        background: linear-gradient(135deg, #0b74b6, #0b4fa0);
+        color: white;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 8px 22px rgba(12,50,80,0.15);
+        margin-top: 10px;
+      }
+      
+      .submit-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(11, 116, 182, 0.25);
+      }
+      
+      .submit-button:active {
+        transform: translateY(0);
+      }
+      
+      .patient-extra {
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid rgba(12,50,80,0.08);
+        display: flex;
+        gap: 10px;
+      }
+      
+      .alt-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px;
+        border: 1px solid rgba(12,50,80,0.12);
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 0.18s ease;
+        background: white;
+      }
+      
+      .alt-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba(12,50,80,0.12);
+      }
+      
+      .alt-btn.google {
+        color: #db4437;
+        border-color: #db4437;
+      }
+      
+      .alt-btn.register {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border: none;
+      }
+      
+      .result {
+        margin-top: 16px;
+        display: none;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        animation: slideDown 0.3s ease;
+      }
+      
+      @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      .result.success {
+        background: linear-gradient(135deg, rgba(240, 253, 244, 0.9), rgba(220, 252, 231, 0.9));
+        border-left: 4px solid #10b981;
+        color: #065f46;
+        display: block;
+      }
+      
+      .result.error {
+        background: linear-gradient(135deg, rgba(254, 242, 242, 0.9), rgba(254, 226, 226, 0.9));
+        border-left: 4px solid #ef4444;
+        color: #991b1b;
+        display: block;
+      }
+      
+      .result i {
+        margin-right: 8px;
+      }
+      
+      @media (max-width: 768px) {
+        .login-container {
+          grid-template-columns: 1fr;
+          max-height: none;
+        }
+        
+        .login-sidebar {
+          padding: 30px 20px;
+        }
+        
+        .role-tabs {
+          flex-direction: row;
+          gap: 8px;
+        }
+        
+        .role-tab {
+          flex: 1;
+          padding: 12px;
+          flex-direction: column;
+          gap: 6px;
+        }
+        
+        .role-tab span {
+          font-size: 12px;
+        }
+        
+        .form-content {
+          padding: 30px 20px;
+        }
+      }
 
   body
-    .login-card
-      .login-header
-        .logo SI
-        .title-block
+    .login-wrapper
+      .login-container
+        .login-sidebar
+          .logo SI
           h1 Iniciar Sesión
-          p.page-sub Clínica Salud Integral
-      form(id='login-form')
-        .form-group
-          label(for='username') Usuario
-          input(type='text', id='username', name='username', required)
-        .form-group
-          label(for='password') Contraseña
-          input(type='password', id='password', name='password', required)
-        button.submit-button(type='submit')
-          i.fas.fa-sign-in-alt
-          | Entrar
-      .actions(style='display:flex; gap:12px; margin-top:12px;')
-        a(href='/api/auth/google', style='flex:1; text-align:center; background:#fff; border:1px solid #cbd5e0; padding:10px; border-radius:8px; text-decoration:none; color:#0f4c81;')
-          i.fab.fa-google(style='color:#db4437;')
-          |  Ingresar con Google (Pacientes)
-        a(href='/registro/paciente', style='flex:1; text-align:center; background:#0b74b6; color:#fff; padding:10px; border-radius:8px; text-decoration:none;')
-          i.fas.fa-user-plus
-          |  Registrarme como Paciente
-      .result#login-result
-    script.
-      const form = document.getElementById('login-form');
-      const result = document.getElementById('login-result');
+          p.subtitle Clínica Salud Integral
+          
+          .role-tabs
+            button.role-tab(data-role='paciente')
+              i.fas.fa-user
+              span Paciente
+            button.role-tab.active(data-role='medico')
+              i.fas.fa-user-md
+              span Médico
+            button.role-tab(data-role='administrativo')
+              i.fas.fa-user-tie
+              span Administrativo
+        
+        .form-content
+          //- Panel Paciente
+          .tab-panel#panel-paciente
+            .panel-header
+              h2
+                i.fas.fa-user
+                | Acceso Pacientes
+              p Ingrese sus credenciales para acceder al sistema
+            form.login-form(data-role='Paciente')
+              .form-group
+                label(for='username-paciente') Usuario o Email
+                input(type='text', id='username-paciente', name='username', required, placeholder='Ingrese su usuario')
+              .form-group
+                label(for='password-paciente') Contraseña
+                input(type='password', id='password-paciente', name='password', required, placeholder='Ingrese su contraseña')
+              button.submit-button(type='submit')
+                i.fas.fa-sign-in-alt
+                | Ingresar
+              
+              .patient-extra
+                a.alt-btn.google(href='/api/auth/google')
+                  i.fab.fa-google
+                  | Google
+                a.alt-btn.register(href='/registro/paciente')
+                  i.fas.fa-user-plus
+                  | Registrarme
+              
+              .result#result-paciente
+          
+          //- Panel Médico
+          .tab-panel.active#panel-medico
+            .panel-header
+              h2
+                i.fas.fa-user-md
+                | Acceso Médicos
+              p Panel exclusivo para profesionales médicos
+            form.login-form(data-role='Medico')
+              .form-group
+                label(for='username-medico') Usuario
+                input(type='text', id='username-medico', name='username', required, placeholder='Ingrese su usuario')
+              .form-group
+                label(for='password-medico') Contraseña
+                input(type='password', id='password-medico', name='password', required, placeholder='Ingrese su contraseña')
+              button.submit-button(type='submit')
+                i.fas.fa-sign-in-alt
+                | Ingresar como Médico
+              .result#result-medico
+          
+          //- Panel Administrativo
+          .tab-panel#panel-administrativo
+            .panel-header
+              h2
+                i.fas.fa-user-tie
+                | Acceso Administrativo
+              p Panel de control del personal autorizado
+            form.login-form(data-role='Administrativo')
+              .form-group
+                label(for='username-admin') Usuario
+                input(type='text', id='username-admin', name='username', required, placeholder='Ingrese su usuario')
+              .form-group
+                label(for='password-admin') Contraseña
+                input(type='password', id='password-admin', name='password', required, placeholder='Ingrese su contraseña')
+              button.submit-button(type='submit')
+                i.fas.fa-sign-in-alt
+                | Ingresar como Administrativo
+              .result#result-administrativo
 
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        result.className = 'result';
-        result.textContent = '';
-        const formData = new FormData(form);
-        const payload = {
-          username: formData.get('username'),
-          password: formData.get('password')
-        };
-        try {
-          const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-          const data = await response.json();
-          if (response.ok && data.success) {
-            // Guardar token en localStorage (opcional) para usar en API JWT
-            if (data.token) localStorage.setItem('authToken', data.token);
-            // Redirección según rol
-            const role = data.data.role;
-            if (role === 'Administrativo') {
-              window.location.href = '/';
-            } else if (role === 'Medico') {
-              window.location.href = '/dashboard/medico';
-            } else if (role === 'Paciente') {
-              window.location.href = '/dashboard/paciente';
+    script.
+      const tabs = document.querySelectorAll('.role-tab');
+      const panels = document.querySelectorAll('.tab-panel');
+      
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const role = tab.dataset.role;
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          panels.forEach(p => p.classList.remove('active'));
+          document.getElementById(`panel-${role}`).classList.add('active');
+        });
+      });
+      
+      const forms = document.querySelectorAll('.login-form');
+      
+      forms.forEach(form => {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const expectedRole = form.dataset.role;
+          const resultElement = document.getElementById(`result-${expectedRole.toLowerCase()}`);
+          resultElement.className = 'result';
+          resultElement.textContent = '';
+          
+          const formData = new FormData(form);
+          const payload = {
+            username: formData.get('username'),
+            password: formData.get('password')
+          };
+          
+          try {
+            const response = await fetch('/api/auth/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+              const userRole = data.data.role;
+              
+              if (userRole !== expectedRole) {
+                resultElement.classList.add('error');
+                resultElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> Este usuario no tiene permisos de ${expectedRole}. Por favor, use la pestaña correcta.`;
+                return;
+              }
+              
+              if (data.token) localStorage.setItem('authToken', data.token);
+              resultElement.classList.add('success');
+              resultElement.innerHTML = '<i class="fas fa-check-circle"></i> Acceso autorizado. Redirigiendo...';
+              
+              setTimeout(() => {
+                if (userRole === 'Administrativo') {
+                  window.location.href = '/';
+                } else if (userRole === 'Medico') {
+                  window.location.href = 'dashboard/medico';
+                } else if (userRole === 'Paciente') {
+                  window.location.href = '/dashboard/paciente';
+                } else {
+                  window.location.href = '/';
+                }
+              }, 1000);
             } else {
-              window.location.href = '/';
+              resultElement.classList.add('error');
+              resultElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${data.message || 'Credenciales incorrectas'}`;
             }
-          } else {
-            result.classList.add('error');
-            result.textContent = data.message || 'Error de inicio de sesión';
+          } catch (error) {
+            resultElement.classList.add('error');
+            resultElement.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Error: ${error.message}`;
           }
-        } catch (error) {
-          result.classList.add('error');
-          result.textContent = 'Error de conexión: ' + error.message;
-        }
+        });
       });

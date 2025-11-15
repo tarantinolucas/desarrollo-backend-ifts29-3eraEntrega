@@ -73,9 +73,130 @@ html(lang='es')
         box-shadow: 0 14px 40px rgba(2,6,23,0.08);
       }
 
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 28px;
+      }
+
       .header-left h1 {
-        font-size: 1.9rem;
+        font-size: 2.5rem;
         margin: 4px 0;
+      }
+
+      .header-left .clinic-name {
+        font-size: 1rem;
+        color: #5b7f98;
+        margin: 0 0 4px 0;
+      }
+
+      .header-left .page-sub {
+        font-size: 1rem;
+        color: #5b7f98;
+        margin: 4px 0;
+      }
+
+      .user-section {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-end;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: white;
+        padding: 10px 16px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(12,50,80,0.06);
+      }
+
+      .user-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0b74b6, #0b4fa0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+      }
+
+      .user-details {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .user-name {
+        font-weight: 600;
+        color: #0f4c81;
+        font-size: 0.95rem;
+        margin: 0;
+      }
+
+      .user-role {
+        font-size: 0.8rem;
+        color: #5b7f98;
+        margin: 2px 0 0 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      .role-badge.admin {
+        background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(220,38,38,0.1));
+        color: #991b1b;
+      }
+
+      .role-badge.medico {
+        background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.1));
+        color: #065f46;
+      }
+
+      .role-badge.paciente {
+        background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(37,99,235,0.1));
+        color: #1e3a8a;
+      }
+
+      .logout-btn {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.18s ease;
+        box-shadow: 0 4px 12px rgba(239,68,68,0.2);
+      }
+
+      .logout-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(239,68,68,0.3);
+      }
+
+      .logout-btn:active {
+        transform: translateY(0);
       }
 
       .top-grid {
@@ -151,20 +272,74 @@ html(lang='es')
         border: 1px solid rgba(10,60,100,0.03);
       }
 
+      @media (max-width: 968px) {
+        .page-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 16px;
+        }
+
+        .user-section {
+          width: 100%;
+          justify-content: space-between;
+        }
+      }
+
   body
-    include partials/sidebar.pug
-    +sidebar(user)
+    .sidebar
+      .logo SI
+      nav
+        a(href='/' title='Inicio')
+          i.fas.fa-house
+        if !user || user.role === 'Administrativo'
+          a(href='/pacientes' title='Pacientes')
+            i.fas.fa-user-injured
+          a(href='/medicos' title='Médicos')
+            i.fas.fa-user-md
+          a(href='/turnos' title='Turnos')
+            i.fas.fa-calendar-check
+        if user && user.role === 'Administrativo'
+          a(href='/usuarios' title='Usuarios')
+            i.fas.fa-users-cog
+        else if user && user.role === 'Medico'
+          a(href='/pacientes' title='Pacientes')
+            i.fas.fa-user-injured
+        else if user && user.role === 'Paciente'
+          a(href='/turnos' title='Turnos')
+            i.fas.fa-calendar-check
+
     .main
       .container
-        .header-left
-          p.clinic-name Clínica Salud Integral
-          h1.page-title Dashboard
-          p.page-sub Desarrollo Backend - Grupo 4
+        .page-header
+          .header-left
+            p.clinic-name Clínica Salud Integral
+            h1.page-title Dashboard
+            p.page-sub Desarrollo Backend - Grupo 4
+          
           if user
-            p.page-sub Bienvenido, #{user.username} · Rol: #{user.role}
-            a(href='#', onclick='logout()') Cerrar sesión
+            .user-section
+              .user-info
+                .user-avatar= user.username.charAt(0).toUpperCase()
+                .user-details
+                  p.user-name Bienvenido, #{user.username}
+                  p.user-role
+                    if user.role === 'Administrativo'
+                      span.role-badge.admin
+                        i.fas.fa-user-shield
+                        | Administrativo
+                    else if user.role === 'Medico'
+                      span.role-badge.medico
+                        i.fas.fa-user-md
+                        | Médico
+                    else if user.role === 'Paciente'
+                      span.role-badge.paciente
+                        i.fas.fa-user
+                        | Paciente
+              button.logout-btn(onclick='logout()')
+                i.fas.fa-sign-out-alt
+                | Cerrar Sesión
           else
-            a(href='/login') Iniciar sesión
+            a(href='/login' style='padding: 10px 20px; background: linear-gradient(135deg, #0b74b6, #0b4fa0); color: white; text-decoration: none; border-radius: 10px; font-weight: 600;') Iniciar sesión
 
         .top-grid
           .metric-card
@@ -198,10 +373,8 @@ html(lang='es')
               ul
                 each t in turnos  
                   li              
-                    // FIX 1: Formatear la fecha a dd/mm/aaaa y mostrar la hora
                     strong= `${t.fechaFormateada} ${t.HoraInicio || ''} - ${t.HoraFin || ''}`
                     br
-                    // FIX 2: Usar las propiedades correctas que vienen de getTurnosCompletos()
                     span Paciente: #{t.Paciente}
                     br
                     span Médico: #{t.Medico}
