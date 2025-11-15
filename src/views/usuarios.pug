@@ -28,7 +28,10 @@ html(lang='es')
       .form-group { margin-bottom: 12px; }
       .form-group label { display: block; font-weight: bold; margin-bottom: 6px; }
       .form-group input, .form-group select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #d0d7e3; }
-      .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .two-col { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 24px; align-items: start; }
+      @media (max-width: 640px) {
+        .two-col { grid-template-columns: 1fr; gap: 18px; }
+      }
       .submit-button { background: #0f4c75; color: #fff; border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; }
       .submit-button:hover { background: #0a3c64; }
       .result { margin-top: 12px; padding: 10px; border-radius: 8px; border-left: 4px solid #999; background: #eef2f7; }
@@ -88,12 +91,19 @@ html(lang='es')
                 select(id='pacienteRef' name='pacienteId')
                   option(value='') Seleccionar paciente...
               button.submit-button(type='submit') Crear Usuario
-            .result#create-result
+            .result#create-result(style='display:none')
 
     script.
       function showResult(elemId, message, success){
         const el = document.getElementById(elemId);
+        if (!message || (typeof message === 'string' && message.trim() === '')){
+          el.style.display = 'none';
+          el.className = 'result';
+          el.innerHTML = '';
+          return;
+        }
         el.className = 'result ' + (success ? 'success' : 'error');
+        el.style.display = 'block';
         el.innerHTML = message;
       }
 

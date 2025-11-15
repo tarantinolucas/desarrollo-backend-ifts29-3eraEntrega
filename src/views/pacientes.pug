@@ -230,6 +230,53 @@ html(lang='es')
         color: #f56565;
       }
 
+      /* --- Estilos de tarjetas reutilizables --- */
+      .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+        margin-top: 12px;
+      }
+      .card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid rgba(12,50,80,0.06);
+        box-shadow: 0 10px 24px rgba(2,6,23,0.06);
+        overflow: hidden;
+        transition: transform .18s ease, box-shadow .18s ease;
+      }
+      .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 32px rgba(2,6,23,0.10);
+      }
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(12,50,80,0.06);
+      }
+      .card-header i {
+        color: #0f4c81;
+        font-size: 1.2rem;
+      }
+      .card-title {
+        font-weight: 600;
+        color: #0f4c81;
+      }
+      .card-body {
+        padding: 12px 16px 16px;
+      }
+      .card-body p {
+        margin: 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #2d3748;
+      }
+      .card-body p i {
+        color: #5b7f98;
+      }
 
   body
     include partials/sidebar.pug
@@ -308,11 +355,12 @@ html(lang='es')
           h3
             i.fas.fa-search
             | Consultar Pacientes
-          button.submit-button(onclick='getAllPacientes()') Ver Todos los Pacientes
+          button.submit-button(onclick='getAllPacientes()') Ver Pacientes
           .form-group(style='margin-top: 20px;')
             label(for='searchDni') Buscar por DNI:
             input(type='text' id='searchDni' name='searchDni' placeholder='Ingrese DNI')
             button.submit-button(onclick='getPacienteByDni()') Buscar
+          // Contenedor de resultados en tarjetas
           .result#read-result
         
         // Formulario Modificar Paciente
@@ -364,6 +412,14 @@ html(lang='es')
             button.submit-button(onclick='deletePaciente()') Eliminar Paciente
           .result#delete-result
 
+    // --- Componente reusable de tarjeta ---
+    mixin CardSimple(icon, title)
+      .card
+        .card-header
+          i(class=icon)
+          .card-title= title
+        block
+
     // --- Script modificado para usar íconos ---
     script.
       function showForm(formType) {
@@ -392,7 +448,6 @@ html(lang='es')
 
       function showResult(elementId, message, isSuccess = true) {
         const result = document.getElementById(elementId);
-        // Genera el ícono correspondiente en HTML
         const iconHtml = isSuccess ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>';
         result.innerHTML = `${iconHtml} ${message}`;
         result.className = 'result ' + (isSuccess ? 'success' : 'error');
@@ -439,13 +494,27 @@ html(lang='es')
           const result = await response.json();
           
           if (response.ok) {
-            // Título con ícono
-            let html = '<h4><i class="fas fa-clipboard-list"></i> Lista de Pacientes:</h4>';
-            result.data.forEach(paciente => {
-              const id = paciente._id || paciente.IdPaciente;
-              html += `<p><strong>ID:</strong> ${id} | <strong>Nombre:</strong> ${paciente.Nombre} ${paciente.Apellido} | <strong>DNI:</strong> ${paciente.DNI} | <strong>Obra Social:</strong> ${paciente.ObraSocial}</p>`;
+            const container = document.getElementById('read-result');
+            container.className = 'result success';
+            container.style.display = 'block';
+            // Construir grid de tarjetas (sin ID)
+            let html = '<div class="cards-grid">';
+            result.data.slice(0, 10).forEach(paciente => {
+              const nombreCompleto = `${paciente.Nombre} ${paciente.Apellido}`;
+              html += `
+                <div class="card paciente-card" onclick="selectPacienteDni('${paciente.DNI || ''}')">
+                  <div class="card-header">
+                    <i class="fas fa-id-card"></i>
+                    <div class="card-title">${nombreCompleto}</div>
+                  </div>
+                  <div class="card-body">
+                    <p><i class="fas fa-id-badge"></i> DNI: ${paciente.DNI || '-'}</p>
+                    <p><i class="fas fa-file-medical"></i> Obra Social: ${paciente.ObraSocial || '-'}</p>
+                  </div>
+                </div>`;
             });
-            showResult('read-result', html, true);
+            html += '</div>';
+            container.innerHTML = `<h4><i class="fas fa-clipboard-list"></i> Lista de Pacientes:</h4>${html}`;
           } else {
             showResult('read-result', `Error: ${result.message}`, false);
           }
@@ -467,17 +536,28 @@ html(lang='es')
           
           if (response.ok) {
             const p = result.data;
-            const id = p._id || p.IdPaciente;
-            // Título con ícono
-            const html = `<h4><i class="fas fa-user"></i> Paciente Encontrado:</h4>
-                         <p><strong>ID:</strong> ${id}</p>
-                         <p><strong>Nombre:</strong> ${p.Nombre} ${p.Apellido}</p>
-                         <p><strong>DNI:</strong> ${p.DNI}</p>
-                         <p><strong>Edad:</strong> ${p.Edad} años</p>
-                         <p><strong>Sexo:</strong> ${p.Sexo}</p>
-                         <p><strong>Obra Social:</strong> ${p.ObraSocial}</p>
-                         <p><strong>Nro. Afiliado:</strong> ${p.NroAfiliado}</p>`;
-            showResult('read-result', html, true);
+            const container = document.getElementById('read-result');
+            container.className = 'result success';
+            container.style.display = 'block';
+            const nombreCompleto = `${p.Nombre} ${p.Apellido}`;
+            const html = `
+              <h4><i class=\"fas fa-user\"></i> Paciente Encontrado:</h4>
+              <div class=\"cards-grid\">
+                <div class=\"card paciente-card\" onclick=\"selectPacienteDni('${p.DNI || ''}')\">
+                  <div class=\"card-header\">
+                    <i class=\"fas fa-id-card\"></i>
+                    <div class=\"card-title\">${nombreCompleto}</div>
+                  </div>
+                  <div class=\"card-body\">
+                    <p><i class=\"fas fa-id-badge\"></i> DNI: ${p.DNI || '-'}</p>
+                    <p><i class=\"fas fa-venus-mars\"></i> Sexo: ${p.Sexo || '-'}</p>
+                    <p><i class=\"fas fa-calendar-alt\"></i> Edad: ${p.Edad || '-'} años</p>
+                    <p><i class=\"fas fa-file-medical\"></i> Obra Social: ${p.ObraSocial || '-'}</p>
+                    <p><i class=\"fas fa-id-card-clip\"></i> Nro. Afiliado: ${p.NroAfiliado || '-'}</p>
+                  </div>
+                </div>
+              </div>`;
+            container.innerHTML = html;
           } else {
             showResult('read-result', `Error: ${result.message}`, false);
           }
@@ -602,7 +682,6 @@ html(lang='es')
         }
       }
 
-    script.
       async function logout(){
         try {
           const response = await fetch('/api/auth/logout', { method: 'POST' });
@@ -615,5 +694,22 @@ html(lang='es')
           }
         } catch (e) {
           alert('Error de conexión: ' + e.message);
+        }
+      }
+
+      function selectPacienteDni(dni) {
+        try {
+          const input = document.getElementById('searchDni');
+          if (input) {
+            input.value = dni || '';
+            if (typeof getPacienteByDni === 'function') {
+              getPacienteByDni();
+            } else {
+              const form = document.getElementById('buscar-dni-form') || input.closest('form');
+              if (form) form.dispatchEvent(new Event('submit', { bubbles: true }));
+            }
+          }
+        } catch (e) {
+          console.error('Error al seleccionar DNI del paciente:', e);
         }
       }

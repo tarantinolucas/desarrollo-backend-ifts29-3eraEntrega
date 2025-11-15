@@ -272,6 +272,50 @@ html(lang='es')
         border: 1px solid rgba(10,60,100,0.03);
       }
 
+      /* Cards grid para turnos y pacientes */
+      .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 12px;
+        margin-top: 8px;
+      }
+
+      .card {
+        background: linear-gradient(180deg, #ffffff, #fbfdff);
+        border-radius: 12px;
+        padding: 12px;
+        border: 1px solid rgba(10,60,100,0.06);
+        box-shadow: 0 8px 20px rgba(12,50,80,0.04);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #0f4c81;
+        font-weight: 600;
+      }
+
+      .card-title {
+        font-size: 0.95rem;
+        margin: 0;
+      }
+
+      .card-body p {
+        margin: 4px 0;
+        color: #5b7f98;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .card i {
+        color: #0f4c81;
+      }
+
       @media (max-width: 968px) {
         .page-header {
           flex-direction: column;
@@ -370,15 +414,20 @@ html(lang='es')
               i.fas.fa-list-ul
               | Turnos agendados recientemente
             if turnos.length
-              ul
-                each t in turnos  
-                  li              
-                    strong= `${t.fechaFormateada} ${t.HoraInicio || ''} - ${t.HoraFin || ''}`
-                    br
-                    span Paciente: #{t.Paciente}
-                    br
-                    span Médico: #{t.Medico}
-            else
+              .cards-grid
+                each t in turnos
+                  .card
+                    .card-header
+                      i.fas.fa-calendar-check
+                      .card-title= `${t.fechaFormateada} ${t.HoraInicio || ''} - ${t.HoraFin || ''}`
+                    .card-body
+                      p
+                        i.fas.fa-user
+                        | Paciente: #{t.Paciente}
+                      p
+                        i.fas.fa-user-md
+                        | Médico: #{t.Medico}
+            if !turnos.length
               p No hay turnos recientes
 
           .info-card
@@ -386,13 +435,20 @@ html(lang='es')
               i.fas.fa-users
               | Pacientes registrados recientemente
             if pacientes.length
-              ul
+              .cards-grid
                 each p in pacientes
-                  li
-                    strong= `${p.Nombre || p.nombre} ${p.Apellido || p.apellido}`
-                    br
-                    span DNI: #{p.DNI || p.dni || '-'} · Obra Social: #{p.ObraSocial || p.obraSocial || '-'}
-            else
+                  .card
+                    .card-header
+                      i.fas.fa-id-card
+                      .card-title= `${p.Nombre || p.nombre} ${p.Apellido || p.apellido}`
+                    .card-body
+                      p
+                        i.fas.fa-id-badge
+                        | DNI: #{p.DNI || p.dni || '-'}
+                      p
+                        i.fas.fa-file-medical
+                        | Obra Social: #{p.ObraSocial || p.obraSocial || '-'}
+            if !pacientes.length
               p No hay pacientes registrados
 
     script.

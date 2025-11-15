@@ -21,8 +21,8 @@ router.get('/', requireAuthView,requireRole(['Administrativo']), async (req, res
     const medicos = await Medico.getAll();
 
     // Si querés limitar la cantidad mostrada
-    const ultimosTurnos = turnos.slice(-6).reverse();
-    const ultimosPacientes = pacientes.slice(-6).reverse();
+    const ultimosTurnos = turnos.slice(-10).reverse();
+    const ultimosPacientes = pacientes.slice(-10).reverse();
 
     const turnosFormateados = ultimosTurnos.map(turno => {
         if (!turno.Fecha) {

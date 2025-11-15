@@ -230,6 +230,54 @@ html(lang='es')
         color: #f56565;
       }
 
+      /* --- Estilos de tarjetas reutilizables --- */
+      .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+        margin-top: 12px;
+      }
+      .card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid rgba(12,50,80,0.06);
+        box-shadow: 0 10px 24px rgba(2,6,23,0.06);
+        overflow: hidden;
+        transition: transform .18s ease, box-shadow .18s ease;
+      }
+      .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 32px rgba(2,6,23,0.10);
+      }
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(12,50,80,0.06);
+      }
+      .card-header i {
+        color: #0f4c81;
+        font-size: 1.2rem;
+      }
+      .card-title {
+        font-weight: 600;
+        color: #0f4c81;
+      }
+      .card-body {
+        padding: 12px 16px 16px;
+      }
+      .card-body p {
+        margin: 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #2d3748;
+      }
+      .card-body p i {
+        color: #5b7f98;
+      }
+
 
   body
     include partials/sidebar.pug
@@ -450,12 +498,28 @@ html(lang='es')
           const response = await fetch('/api/medicos');
           const result = await response.json();
           if (response.ok) {
-            let html = '<h4><i class="fas fa-clipboard-list"></i> Lista de Médicos:</h4>';
-            result.data.forEach(medico => {
-              const id = medico._id || medico.IdMedico;
-              html += `<p><strong>ID:</strong> ${id} | <strong>Nombre:</strong> ${medico.Nombre} ${medico.Apellido} | <strong>DNI:</strong> ${medico.DNI} | <strong>Especialidad:</strong> ${medico.Especialidad}</p>`;
+            const medicos = Array.isArray(result.data) ? result.data : [];
+            const limited = medicos.slice(0, 10);
+            let html = '<div class="cards-grid">';
+            limited.forEach(medico => {
+              const nombreCompleto = `${medico.Nombre} ${medico.Apellido}`;
+              html += `
+                <div class="card medico-card" onclick="selectMedicoDni('${medico.DNI || ''}')">
+                  <div class="card-header">
+                    <i class="fas fa-user-md"></i>
+                    <div class="card-title">${nombreCompleto}</div>
+                  </div>
+                  <div class="card-body">
+                    <p><i class="fas fa-id-badge"></i> DNI: ${medico.DNI || '-'}</p>
+                    <p><i class="fas fa-briefcase-medical"></i> Especialidad: ${medico.Especialidad || '-'}</p>
+                  </div>
+                </div>`;
             });
-            showResult('read-result', html, true);
+            html += '</div>';
+            const container = document.getElementById('read-result');
+            container.className = 'result success';
+            container.style.display = 'block';
+            container.innerHTML = `<h4><i class="fas fa-clipboard-list"></i> Lista de Médicos:</h4>${html}`;
           } else {
             showResult('read-result', `Error: ${result.message}`, false);
           }
@@ -477,13 +541,25 @@ html(lang='es')
           
           if (response.ok) {
             const m = result.data;
-            const id = m._id || m.IdMedico;
-            const html = `<h4><i class="fas fa-user-md"></i> Médico Encontrado:</h4>
-                         <p><strong>ID:</strong> ${id}</p>
-                         <p><strong>Nombre:</strong> ${m.Nombre} ${m.Apellido}</p>
-                         <p><strong>DNI:</strong> ${m.DNI}</p>
-                         <p><strong>Especialidad:</strong> ${m.Especialidad}</p>`;
-            showResult('read-result', html, true);
+            const nombreCompleto = `${m.Nombre} ${m.Apellido}`;
+            const container = document.getElementById('read-result');
+            container.className = 'result success';
+            container.style.display = 'block';
+            const html = `
+              <h4><i class="fas fa-user-md"></i> Médico Encontrado:</h4>
+              <div class="cards-grid">
+                <div class="card medico-card" onclick="selectMedicoDni('${m.DNI || ''}')">
+                  <div class="card-header">
+                    <i class="fas fa-user-md"></i>
+                    <div class="card-title">${nombreCompleto}</div>
+                  </div>
+                  <div class="card-body">
+                    <p><i class="fas fa-id-badge"></i> DNI: ${m.DNI || '-'}</p>
+                    <p><i class="fas fa-briefcase-medical"></i> Especialidad: ${m.Especialidad || '-'}</p>
+                  </div>
+                </div>
+              </div>`;
+            container.innerHTML = html;
           } else {
             showResult('read-result', `Error: ${result.message}`, false);
           }
@@ -644,4 +720,22 @@ html(lang='es')
         } catch (e) {
           alert('Error de conexión: ' + e.message);
         }
+      }
+
+    script.
+      function selectMedicoDni(dni) {
+      try {
+        const input = document.getElementById('searchDni');
+        if (input) {
+          input.value = dni || '';
+          if (typeof getMedicoByDni === 'function') {
+            getMedicoByDni();
+          } else {
+            const form = input.closest('form');
+            if (form) form.dispatchEvent(new Event('submit', { bubbles: true }));
+          }
+        }
+      } catch (e) {
+        console.error('Error al seleccionar DNI del médico:', e);
+      }
       }

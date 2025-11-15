@@ -93,6 +93,54 @@ html(lang='es')
         color: #5b7f98;
       }
       
+      /* --- Estilos de tarjetas reutilizables --- */
+      .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+        margin-top: 12px;
+      }
+      .card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid rgba(12,50,80,0.06);
+        box-shadow: 0 10px 24px rgba(2,6,23,0.06);
+        overflow: hidden;
+        transition: transform .18s ease, box-shadow .18s ease;
+      }
+      .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 32px rgba(2,6,23,0.10);
+      }
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(12,50,80,0.06);
+      }
+      .card-header i {
+        color: #0f4c81;
+        font-size: 1.2rem;
+      }
+      .card-title {
+        font-weight: 600;
+        color: #0f4c81;
+      }
+      .card-body {
+        padding: 12px 16px 16px;
+      }
+      .card-body p {
+        margin: 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #2d3748;
+      }
+      .card-body p i {
+        color: #5b7f98;
+      }
+      
       /* --- Estilos Específicos de Turnos (Fusionados) --- */
       .actions {
         display: grid;
@@ -560,11 +608,24 @@ html(lang='es')
 
           
           if (response.ok) {
-            let html = '<h4><i class="fas fa-clipboard-list"></i> Lista de Turnos:</h4>';
-            result.data.forEach(turno => {
-              const id = turno._id || turno.IdTurno;
-              html += `<p><strong>ID:</strong> ${id} | <strong>Fecha:</strong> ${formatDate(turno.Fecha)} | <strong>Hora:</strong> ${turno.HoraInicio}-${turno.HoraFin} | <strong>Paciente:</strong> ${turno.Paciente || 'N/A'} | <strong>Médico:</strong> ${turno.Medico || 'N/A'}</p>`;
+            let html = '<h4><i class="fas fa-clipboard-list"></i> Lista de Turnos:</h4><div class="cards-grid">';
+            result.data.slice(0, 10).forEach(turno => {
+              const medico = medicos.find(m => (m._id || m.IdMedico) == turno.IdMedico);
+              const paciente = pacientes.find(p => (p._id || p.IdPaciente) == turno.IdPaciente);
+              const medicoNombre = medico ? medico.Nombre + ' ' + medico.Apellido : (turno.Medico || 'N/A');
+              const pacienteNombre = paciente ? paciente.Nombre + ' ' + paciente.Apellido : (turno.Paciente || 'N/A');
+              html += `<div class="card turno-card" onclick="selectTurnoCard(this)" data-fecha="${formatDate(turno.Fecha)}" data-hora-inicio="${turno.HoraInicio}" data-hora-fin="${turno.HoraFin}" data-paciente="${pacienteNombre}" data-medico="${medicoNombre}">
+                <div class="card-header">
+                  <i class="fas fa-calendar-check"></i>
+                  <div class="card-title">${formatDate(turno.Fecha)} ${turno.HoraInicio}-${turno.HoraFin}</div>
+                </div>
+                <div class="card-body">
+                  <p><i class="fas fa-user-injured"></i> Paciente: ${pacienteNombre}</p>
+                  <p><i class="fas fa-user-md"></i> Médico: ${medicoNombre}</p>
+                </div>
+              </div>`;
             });
+            html += '</div>';
             showResult('read-result', html, true);
           } else {
             showResult('read-result', `Error: ${result.message}`, false);
@@ -584,16 +645,27 @@ html(lang='es')
           const response = await fetch(`/api/turnos/fecha/${fecha}`);
           const result = await response.json();
           if (response.ok) {
-            let html = `<h4><i class="fas fa-calendar-day"></i> Turnos del ${formatDate(fecha)}:</h4>`;
-            if (result.data.length === 0) {
+            let html = `<h4><i class="fas fa-calendar-day"></i> Turnos del ${formatDate(fecha)}:</h4><div class="cards-grid">`;
+            if (!result.data.length) {
               html += '<p>No hay turnos para esta fecha.</p>';
             }
-            result.data.forEach(turno => {
+            result.data.slice(0, 10).forEach(turno => {
               const paciente = pacientes.find(p => (p._id || p.IdPaciente) == turno.IdPaciente);
               const medico = medicos.find(m => (m._id || m.IdMedico) == turno.IdMedico);
-              const id = turno._id || turno.IdTurno;
-              html += `<p><strong>ID:</strong> ${id} | <strong>Hora:</strong> ${turno.HoraInicio}-${turno.HoraFin} | <strong>Paciente:</strong> ${paciente ? paciente.Nombre + ' ' + paciente.Apellido : 'N/A'} | <strong>Médico:</strong> ${medico ? medico.Nombre + ' ' + medico.Apellido : 'N/A'}</p>`;
+              const medicoNombre = medico ? medico.Nombre + ' ' + medico.Apellido : 'N/A';
+              const pacienteNombre = paciente ? paciente.Nombre + ' ' + paciente.Apellido : 'N/A';
+              html += `<div class="card turno-card" onclick="selectTurnoCard(this)" data-fecha="${formatDate(turno.Fecha)}" data-hora-inicio="${turno.HoraInicio}" data-hora-fin="${turno.HoraFin}" data-paciente="${pacienteNombre}" data-medico="${medicoNombre}">
+                <div class="card-header">
+                  <i class="fas fa-calendar-check"></i>
+                  <div class="card-title">${formatDate(turno.Fecha)} ${turno.HoraInicio}-${turno.HoraFin}</div>
+                </div>
+                <div class="card-body">
+                  <p><i class="fas fa-user-injured"></i> Paciente: ${pacienteNombre}</p>
+                  <p><i class="fas fa-user-md"></i> Médico: ${medicoNombre}</p>
+                </div>
+              </div>`;
             });
+            html += '</div>';
             showResult('read-result', html, true);
           } else {
             showResult('read-result', `Error: ${result.message}`, false);
@@ -642,15 +714,26 @@ html(lang='es')
           const result = await response.json();
           if (response.ok) {
             const paciente = pacientes.find(p => (p._id || p.IdPaciente) == idPaciente);
-            let html = `<h4><i class="fas fa-user-injured"></i> Turnos de ${paciente ? paciente.Nombre + ' ' + paciente.Apellido : 'Paciente'}:</h4>`;
-            if (result.data.length === 0) {
+            let html = `<h4><i class="fas fa-user-injured"></i> Turnos de ${paciente ? paciente.Nombre + ' ' + paciente.Apellido : 'Paciente'}:</h4><div class="cards-grid">`;
+            if (!result.data.length) {
               html += '<p>No hay turnos para este paciente.</p>';
             }
-            result.data.forEach(turno => {
+            result.data.slice(0, 10).forEach(turno => {
               const medico = medicos.find(m => (m._id || m.IdMedico) == turno.IdMedico);
-              const id = turno._id || turno.IdTurno;
-              html += `<p><strong>ID:</strong> ${id} | <strong>Fecha:</strong> ${formatDate(turno.Fecha)} | <strong>Hora:</strong> ${turno.HoraInicio}-${turno.HoraFin} | <strong>Médico:</strong> ${medico ? medico.Nombre + ' ' + medico.Apellido : 'N/A'}</p>`;
+              const medicoNombre = medico ? medico.Nombre + ' ' + medico.Apellido : 'N/A';
+              const pacienteNombre = paciente ? paciente.Nombre + ' ' + paciente.Apellido : 'Paciente';
+              html += `<div class="card turno-card" onclick="selectTurnoCard(this)" data-fecha="${formatDate(turno.Fecha)}" data-hora-inicio="${turno.HoraInicio}" data-hora-fin="${turno.HoraFin}" data-paciente="${pacienteNombre}" data-medico="${medicoNombre}">
+                <div class="card-header">
+                  <i class="fas fa-calendar-check"></i>
+                  <div class="card-title">${formatDate(turno.Fecha)} ${turno.HoraInicio}-${turno.HoraFin}</div>
+                </div>
+                <div class="card-body">
+                  <p><i class="fas fa-user-injured"></i> Paciente: ${pacienteNombre}</p>
+                  <p><i class="fas fa-user-md"></i> Médico: ${medicoNombre}</p>
+                </div>
+              </div>`;
             });
+            html += '</div>';
             showResult('read-result', html, true);
           } else {
             showResult('read-result', `Error: ${result.message}`, false);
@@ -666,15 +749,26 @@ html(lang='es')
           const result = await response.json();
           if (response.ok) {
             const paciente = pacientes.find(p => (p._id || p.IdPaciente) == idPaciente);
-            let html = `<h4><i class="fas fa-user-injured"></i> Mis Turnos${paciente ? ' (' + paciente.Nombre + ' ' + paciente.Apellido + ')' : ''}:</h4>`;
+            let html = `<h4><i class="fas fa-user-injured"></i> Mis Turnos${paciente ? ' (' + paciente.Nombre + ' ' + paciente.Apellido + ')' : ''}:</h4><div class="cards-grid">`;
             if (result.data.length === 0) {
               html += '<p>No hay turnos para tu cuenta.</p>';
             }
-            result.data.forEach(turno => {
+            result.data.slice(0, 10).forEach(turno => {
               const medico = medicos.find(m => (m._id || m.IdMedico) == turno.IdMedico);
-              const id = turno._id || turno.IdTurno;
-              html += `<p><strong>ID:</strong> ${id} | <strong>Fecha:</strong> ${formatDate(turno.Fecha)} | <strong>Hora:</strong> ${turno.HoraInicio}-${turno.HoraFin} | <strong>Médico:</strong> ${medico ? medico.Nombre + ' ' + medico.Apellido : 'N/A'}</p>`;
+              const medicoNombre = medico ? medico.Nombre + ' ' + medico.Apellido : 'N/A';
+              const pacienteNombre = paciente ? paciente.Nombre + ' ' + paciente.Apellido : 'Paciente';
+              html += `<div class="card turno-card" onclick="selectTurnoCard(this)" data-fecha="${formatDate(turno.Fecha)}" data-hora-inicio="${turno.HoraInicio}" data-hora-fin="${turno.HoraFin}" data-paciente="${pacienteNombre}" data-medico="${medicoNombre}">
+                <div class="card-header">
+                  <i class="fas fa-calendar-check"></i>
+                  <div class="card-title">${formatDate(turno.Fecha)} ${turno.HoraInicio}-${turno.HoraFin}</div>
+                </div>
+                <div class="card-body">
+                  <p><i class="fas fa-user-injured"></i> Paciente: ${pacienteNombre}</p>
+                  <p><i class="fas fa-user-md"></i> Médico: ${medicoNombre}</p>
+                </div>
+              </div>`;
             });
+            html += '</div>';
             showResult('read-result', html, true);
           } else {
             showResult('read-result', `Error: ${result.message}`, false);
@@ -695,15 +789,26 @@ html(lang='es')
           const result = await response.json();
           if (response.ok) {
             const medico = medicos.find(m => (m._id || m.IdMedico) == idMedico);
-            let html = `<h4><i class="fas fa-user-md"></i> Turnos de ${medico ? medico.Nombre + ' ' + medico.Apellido : 'Médico'}:</h4>`;
-            if (result.data.length === 0) {
+            let html = `<h4><i class="fas fa-user-md"></i> Turnos de ${medico ? medico.Nombre + ' ' + medico.Apellido : 'Médico'}:</h4><div class="cards-grid">`;
+            if (!result.data.length) {
               html += '<p>No hay turnos para este médico.</p>';
             }
-            result.data.forEach(turno => {
+            result.data.slice(0, 10).forEach(turno => {
               const paciente = pacientes.find(p => (p._id || p.IdPaciente) == turno.IdPaciente);
-              const id = turno._id || turno.IdTurno;
-              html += `<p><strong>ID:</strong> ${id} | <strong>Fecha:</strong> ${formatDate(turno.Fecha)} | <strong>Hora:</strong> ${turno.HoraInicio}-${turno.HoraFin} | <strong>Paciente:</strong> ${paciente ? paciente.Nombre + ' ' + paciente.Apellido : 'N/A'}</p>`;
+              const pacienteNombre = paciente ? paciente.Nombre + ' ' + paciente.Apellido : 'N/A';
+              const medicoNombre = medico ? medico.Nombre + ' ' + medico.Apellido : 'Médico';
+              html += `<div class="card turno-card" onclick="selectTurnoCard(this)" data-fecha="${formatDate(turno.Fecha)}" data-hora-inicio="${turno.HoraInicio}" data-hora-fin="${turno.HoraFin}" data-paciente="${pacienteNombre}" data-medico="${medicoNombre}">
+                <div class="card-header">
+                  <i class="fas fa-calendar-check"></i>
+                  <div class="card-title">${formatDate(turno.Fecha)} ${turno.HoraInicio}-${turno.HoraFin}</div>
+                </div>
+                <div class="card-body">
+                  <p><i class="fas fa-user-injured"></i> Paciente: ${pacienteNombre}</p>
+                  <p><i class="fas fa-user-md"></i> Médico: ${medicoNombre}</p>
+                </div>
+              </div>`;
             });
+            html += '</div>';
             showResult('read-result', html, true);
           } else {
             showResult('read-result', `Error: ${result.message}`, false);
@@ -812,5 +917,30 @@ html(lang='es')
           }
         } catch (e) {
           alert('Error de conexión: ' + e.message);
+        }
+      }
+
+      function selectTurnoCard(el) {
+        try {
+          const fecha = el.dataset.fecha || '';
+          const horaInicio = el.dataset.horaInicio || '';
+          const horaFin = el.dataset.horaFin || '';
+          const paciente = el.dataset.paciente || 'N/A';
+          const medico = el.dataset.medico || 'N/A';
+          const html = `<div class="cards-grid">
+            <div class="card">
+              <div class="card-header">
+                <i class="fas fa-calendar-check"></i>
+                <div class="card-title">${fecha} ${horaInicio}-${horaFin}</div>
+              </div>
+              <div class="card-body">
+                <p><i class="fas fa-user-injured"></i> Paciente: ${paciente}</p>
+                <p><i class="fas fa-user-md"></i> Médico: ${medico}</p>
+              </div>
+            </div>
+          </div>`;
+          showResult('read-result', html, true);
+        } catch (e) {
+          console.error('Error al mostrar detalle del turno:', e);
         }
       }
